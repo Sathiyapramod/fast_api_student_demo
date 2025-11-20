@@ -1,0 +1,73 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.wheels/
+
+# Virtual environments
+.venv/
+venv/
+myenv/
+env/
+
+# VSCode settings
+.vscode/
+
+# PyCharm settings
+.idea/
+
+# Environment variables
+.env
+.env.*
+
+# Logs
+*.log
+
+# Database files (if any local db files)
+*.sqlite3
+*.db
+
+# Migrations (optional, if you track them via VCS)
+# migrations/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# pytest cache
+.pytest_cache/
+
+# mypy cache
+.mypy_cache/
+
+# celery beat schedule file
+celerybeat-schedule
+
+# Sphinx documentation build directory
+docs/_build/
+
+# FastAPI specific
+instance/
