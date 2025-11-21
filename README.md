@@ -28,3 +28,9 @@ uvicorn app.main:app --reload
 ```url
 http://127.0.0.1:8000/docs
 ```
+
+- Before pushing the code, execute the below script on the commandline (inside your virtual environment)
+
+```bash
+pip freeze > requirements.txt
+```
