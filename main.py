@@ -44,8 +44,8 @@ def get_all_marks():
 
 # get marks by id
 @app.get("/marks/{student_id}")
-def get_marks_by_id(student_id: int, student_name: str):
-    print({"id": student_id, "name": student_name})
+def get_marks_by_id(student_id: int):
+    print({"id": student_id})
     return {
         "message": f"This end point will return marks for student no - {student_id}"
     }
@@ -113,6 +113,6 @@ def update_marks(student_id: str, revised_marks: UpdateStudentData):
 
 
 @app.delete("/marks/{student_id}")
-def delete_marks(student_id:str):
+def delete_marks(student_id: str):
     # write your code logic here
     pass
