@@ -1,9 +1,22 @@
-from fastapi import FastAPI
-
-# step 1
-from pydantic import BaseModel
+from fastapi import FastAPI, Depends, status
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+from database import SessionLocal, Base, engine
+from schema import StudentMarks, UpdateStudentData
+import models
 
 app = FastAPI()
+
+# orm to synchronize with database
+Base.metadata.create_all(bind=engine)
+
+def connect_db():
+    db = SessionLocal()
+    try:
+        print("Db connected successfully")
+        yield db
+    finally:
+        db.close()
 
 
 @app.get("/test")
@@ -33,19 +46,26 @@ marks = [
 
 
 # get all marks
-@app.get("/marks")
-def get_all_marks():
+@app.get("/marks", status_code=status.HTTP_200_OK)
+def get_all_marks(db: Session = Depends(connect_db)):
     if len(marks) == 0:
         return {"message": "This end point will return all the marks"}
     else:
-        # return {"marks": marks}
+        # raw_query = "SELECT * FROM marks;"
+        # items = db.execute(text(raw_query)).fetchall()
+        items = db.query(models.Marks).all()
+        print(items)
         return marks
 
 
 # get marks by id
 @app.get("/marks/{student_id}")
-def get_marks_by_id(student_id: int, student_name: str):
-    print({"id": student_id, "name": student_name})
+def get_marks_by_id(
+    student_id: int, student_name: str, db: Session = Depends(connect_db)
+):
+    current_item = (
+        db.query(models.Marks).filter(models.Marks.student_id == student_id).first()
+    )
     return {
         "message": f"This end point will return marks for student no - {student_id}"
     }
@@ -53,13 +73,6 @@ def get_marks_by_id(student_id: int, student_name: str):
 
 # step 2
 # create a class for the student marks
-class StudentMarks(BaseModel):
-    student_id: str
-    student_name: str
-    ps: int
-    tech: int
-    english: int
-    lifeskills: int
 
 
 # create marks
@@ -88,14 +101,6 @@ def create_marks(new_marks: StudentMarks):
     return {"message": "Uploaded Marks Successfully"}
 
 
-class UpdateStudentData(BaseModel):
-    student_name: str
-    ps: int
-    tech: int
-    english: int
-    lifeskills: int
-
-
 # student_id is called Request Params
 # revised_marks is called Request Body (or) Payload
 @app.put("/marks/{student_id}")
@@ -113,6 +118,6 @@ def update_marks(student_id: str, revised_marks: UpdateStudentData):
 
 
 @app.delete("/marks/{student_id}")
-def delete_marks(student_id:str):
+def delete_marks(student_id: str):
     # write your code logic here
     pass
