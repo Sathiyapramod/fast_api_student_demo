@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import SessionLocal, Base, engine
 from schema import StudentMarks, UpdateStudentData
-import models
+from models import Marks
 
 app = FastAPI()
 
@@ -53,7 +53,7 @@ def get_all_marks(db: Session = Depends(connect_db)):
     else:
         # raw_query = "SELECT * FROM marks;"
         # items = db.execute(text(raw_query)).fetchall()
-        items = db.query(models.Marks).all()
+        items = db.query(Marks).all()
         print(items)
         return marks
 
@@ -64,7 +64,7 @@ def get_marks_by_id(
     student_id: int, student_name: str, db: Session = Depends(connect_db)
 ):
     current_item = (
-        db.query(models.Marks).filter(models.Marks.student_id == student_id).first()
+        db.query(Marks).filter(Marks.student_id == student_id).first()
     )
     return {
         "message": f"This end point will return marks for student no - {student_id}"
