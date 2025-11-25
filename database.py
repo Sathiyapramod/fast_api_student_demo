@@ -1,14 +1,15 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-username = "your_username"
-password = "your_password"
+username = "postgres"
+password = "root"
 hostname = "localhost"
 port = "5432"
-db_name = "your_db_name"
+db_name = "testing_demo"
 
 DB_URL = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{db_name}"
 
+# dialling operation
 engine = create_engine(DB_URL)
 
 # binding the engine to a session

@@ -1,5 +1,6 @@
-from sqlalchemy import Column , String , Integer
+from sqlalchemy import Column, String, Integer
 from database import Base
+
 
 # base is your parent class
 class Marks(Base):
@@ -12,3 +13,14 @@ class Marks(Base):
     english = Column(Integer)
     tech = Column(Integer)
     lifeskills = Column(Integer)
+
+
+# create one class called coaches
+class Coaches(Base):
+    # defining table name
+    __tablename__ = "coaches"
+
+    # column names
+    coach_id = Column(Integer, primary_key=True)
+    coach_name = Column(String)
+    email = Column(String)

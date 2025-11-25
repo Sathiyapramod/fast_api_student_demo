@@ -1,14 +1,31 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+from database import SessionLocal, engine
+from models import Base, Marks, Coaches
 
 # step 1
 from pydantic import BaseModel
 
 app = FastAPI()
 
+Base.metadata.create_all(bind=engine)
+
+
+def connect_db():
+    # start
+    # connection operation
+    db = SessionLocal()
+    try:
+        print("Connected to DB successfully")
+        yield db
+    except:
+        db.close()
+    # stop
+
 
 @app.get("/test")
-def welcome_kit():
-    print("hello world")
+def welcome_kit(dbs: Session = Depends(connect_db)):
     return {"message": "Welcome to our server"}
 
 
@@ -34,21 +51,30 @@ marks = [
 
 # get all marks
 @app.get("/marks")
-def get_all_marks():
+def get_all_marks(dbs: Session = Depends(connect_db)):
     if len(marks) == 0:
         return {"message": "This end point will return all the marks"}
     else:
-        # return {"marks": marks}
-        return marks
+        # how to query
+        # raw_query = "SELECT * FROM marks"
+        # list_of_marks = dbs.execute(text(raw_query)).fetchall()
+
+        list_of_marks = dbs.query(Marks).all()
+        print(list_of_marks)
+        return list_of_marks
 
 
 # get marks by id
 @app.get("/marks/{student_id}")
-def get_marks_by_id(student_id: int):
-    print({"id": student_id})
-    return {
-        "message": f"This end point will return marks for student no - {student_id}"
-    }
+def get_marks_by_id(student_id: str, dbs: Session = Depends(connect_db)):
+
+    valid_entry = dbs.query(Marks).filter(Marks.student_id == student_id).first()
+    print(valid_entry)
+
+    if not valid_entry:
+        return {"message": "invalid id"}
+    else: 
+        return valid_entry
 
 
 # step 2
