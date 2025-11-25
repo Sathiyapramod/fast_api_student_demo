@@ -25,37 +25,13 @@ def welcome_kit():
     return {"message": "Welcome to our server"}
 
 
-marks = [
-    {
-        "name": "narayanan",
-        "id": "1",
-        "ps": 72,
-        "tech": 35,
-        "english": 40,
-        "ls": 38,
-    },
-    {
-        "name": "kamalesh",
-        "id": "2",
-        "ps": 73,
-        "tech": 34,
-        "english": 20,
-        "ls": 78,
-    },
-]
-
-
 # get all marks
 @app.get("/marks", status_code=status.HTTP_200_OK)
 def get_all_marks(db: Session = Depends(connect_db)):
-    if len(marks) == 0:
-        return {"message": "This end point will return all the marks"}
-    else:
-        # raw_query = "SELECT * FROM marks;"
-        # items = db.execute(text(raw_query)).fetchall()
-        items = db.query(Marks).all()
-        print(items)
-        return marks
+    # raw_query = "SELECT * FROM marks;"
+    # items = db.execute(text(raw_query)).fetchall()
+    items = db.query(Marks).all()
+    return items
 
 
 # get marks by id
@@ -63,61 +39,64 @@ def get_all_marks(db: Session = Depends(connect_db)):
 def get_marks_by_id(
     student_id: int, student_name: str, db: Session = Depends(connect_db)
 ):
-    current_item = (
-        db.query(Marks).filter(Marks.student_id == student_id).first()
-    )
-    return {
-        "message": f"This end point will return marks for student no - {student_id}"
-    }
+    current_item = db.query(Marks).filter(Marks.student_id == student_id).first()
+    return current_item
 
 
 # step 2
 # create a class for the student marks
-
-
 # create marks
 @app.post("/marks")
-def create_marks(new_marks: StudentMarks):
+def create_marks(new_marks: StudentMarks, dbs: Session = Depends(connect_db)):
     # extract separate data
     my_name = new_marks.student_name
     ps_mark = new_marks.ps
     tech_mark = new_marks.tech
     english = new_marks.english
     ls = new_marks.lifeskills
-    my_id = new_marks.student_id
-    # packing into a dictionary
-    info = {}
-    info.update(
-        {
-            "name": my_name,
-            "id": my_id,
-            "ps": ps_mark,
-            "tech": tech_mark,
-            "english": english,
-            "ls": ls,
-        }
+
+    new_entry = Marks(
+        student_name=my_name, ps=ps_mark, tech=tech_mark, english=english, lifeskills=ls
     )
-    marks.append(info)
-    return {"message": "Uploaded Marks Successfully"}
+    # adding the new entry
+    dbs.add(new_entry)
+
+    # committing the transaction
+    dbs.commit()
+
+    # refresh the object
+    dbs.refresh(new_entry)
+    return new_entry
 
 
 # student_id is called Request Params
 # revised_marks is called Request Body (or) Payload
 @app.put("/marks/{student_id}")
-def update_marks(student_id: str, revised_marks: UpdateStudentData):
-    for el in marks:
-        # id is compared here
-        if el["id"] == student_id:
-            # i dont know which mark is getting updated
-            el["ps"] = revised_marks.ps
-            el["tech"] = revised_marks.tech
-            el["ls"] = revised_marks.lifeskills
-            el["english"] = revised_marks.english
-            el["name"] = revised_marks.student_name
-    return {"message": "testing phase"}
+def update_marks(
+    student_id: str, revised_marks: UpdateStudentData, db: Session = Depends(connect_db)
+):
+    db_mark = db.query(Marks).filter(Marks.student_id == student_id).first()
+    if not db_mark:
+        return {"message": f"Invalid Student id - {student_id}"}
+    else:
+        db_mark.english = revised_marks.english
+        db_mark.lifeskills = revised_marks.lifeskills
+        db_mark.ps = revised_marks.ps
+        db_mark.tech = revised_marks.tech
+
+        db.commit()
+
+        db.refresh(db_mark)
+        return {"message": "Mark updated successfully"}
 
 
 @app.delete("/marks/{student_id}")
-def delete_marks(student_id: str):
+def delete_marks(student_id: str, db: Session = Depends(connect_db)):
     # write your code logic here
-    pass
+    db_mark = db.query(Marks).filter(Marks.student_id == student_id).first()
+    if not db_mark:
+        return {"message": f"Invalid Student id - {student_id}"}
+    else:
+        db.delete(db_mark)
+        db.commit()
+        return {"message": "marks deleted successfully"}
