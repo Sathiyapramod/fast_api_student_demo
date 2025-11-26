@@ -3,14 +3,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import SessionLocal, engine
 from models import Base, Marks, Coaches
-
-# step 1
-from pydantic import BaseModel
+from schema import StudentsData
 
 app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
-
 
 def connect_db():
     # start
@@ -29,39 +26,16 @@ def welcome_kit(dbs: Session = Depends(connect_db)):
     return {"message": "Welcome to our server"}
 
 
-marks = [
-    {
-        "name": "narayanan",
-        "id": "1",
-        "ps": 72,
-        "tech": 35,
-        "english": 40,
-        "ls": 38,
-    },
-    {
-        "name": "kamalesh",
-        "id": "2",
-        "ps": 73,
-        "tech": 34,
-        "english": 20,
-        "ls": 78,
-    },
-]
-
-
 # get all marks
 @app.get("/marks")
 def get_all_marks(dbs: Session = Depends(connect_db)):
-    if len(marks) == 0:
-        return {"message": "This end point will return all the marks"}
-    else:
-        # how to query
-        # raw_query = "SELECT * FROM marks"
-        # list_of_marks = dbs.execute(text(raw_query)).fetchall()
+    # how to query
+    # raw_query = "SELECT * FROM marks"
+    # list_of_marks = dbs.execute(text(raw_query)).fetchall()
 
-        list_of_marks = dbs.query(Marks).all()
-        print(list_of_marks)
-        return list_of_marks
+    list_of_marks = dbs.query(Marks).all()
+    print(list_of_marks)
+    return list_of_marks
 
 
 # get marks by id
@@ -73,69 +47,65 @@ def get_marks_by_id(student_id: str, dbs: Session = Depends(connect_db)):
 
     if not valid_entry:
         return {"message": "invalid id"}
-    else: 
+    else:
         return valid_entry
-
-
-# step 2
-# create a class for the student marks
-class StudentMarks(BaseModel):
-    student_id: str
-    student_name: str
-    ps: int
-    tech: int
-    english: int
-    lifeskills: int
-
-
 # create marks
 @app.post("/marks")
-def create_marks(new_marks: StudentMarks):
+def create_marks(new_marks: StudentsData, dbs: Session = Depends(connect_db)):
     # extract separate data
     my_name = new_marks.student_name
     ps_mark = new_marks.ps
     tech_mark = new_marks.tech
     english = new_marks.english
     ls = new_marks.lifeskills
-    my_id = new_marks.student_id
-    # packing into a dictionary
-    info = {}
-    info.update(
-        {
-            "name": my_name,
-            "id": my_id,
-            "ps": ps_mark,
-            "tech": tech_mark,
-            "english": english,
-            "ls": ls,
-        }
+
+    new_entry = Marks(
+        student_name=my_name,
+        ps=ps_mark,
+        tech=tech_mark,
+        english=english,
+        lifeskills=ls,
     )
-    marks.append(info)
-    return {"message": "Uploaded Marks Successfully"}
 
-
-class UpdateStudentData(BaseModel):
-    student_name: str
-    ps: int
-    tech: int
-    english: int
-    lifeskills: int
+    dbs.add(new_entry)
+    dbs.commit()
+    dbs.refresh(new_entry)
+    return new_entry
 
 
 # student_id is called Request Params
 # revised_marks is called Request Body (or) Payload
 @app.put("/marks/{student_id}")
-def update_marks(student_id: str, revised_marks: UpdateStudentData):
-    for el in marks:
-        # id is compared here
-        if el["id"] == student_id:
-            # i dont know which mark is getting updated
-            el["ps"] = revised_marks.ps
-            el["tech"] = revised_marks.tech
-            el["ls"] = revised_marks.lifeskills
-            el["english"] = revised_marks.english
-            el["name"] = revised_marks.student_name
-    return {"message": "testing phase"}
+def update_marks(
+    student_id: str,
+    revised_marks: StudentsData,
+    dbs: Session = Depends(connect_db),
+):
+    # check whether the given id is matching or not
+    valid_entry = dbs.query(Marks).filter(Marks.student_id == student_id).first()
+    if not valid_entry:
+        return {"message": "Id is invalid"}
+    else:
+        english = revised_marks.english
+        ps = revised_marks.ps
+        tech = revised_marks.tech
+        ls = revised_marks.lifeskills
+        name = revised_marks.student_name
+
+        # updation
+        # name
+        valid_entry.student_name = name
+        # marks
+        valid_entry.ps = ps
+        valid_entry.tech = tech
+        valid_entry.lifeskills = ls
+        valid_entry.english = english
+
+        # commit
+        dbs.commit()
+
+        dbs.refresh(valid_entry)
+        return {"message": "Updated successfully"}
 
 
 @app.delete("/marks/{student_id}")

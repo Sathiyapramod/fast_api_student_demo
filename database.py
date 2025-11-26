@@ -5,7 +5,7 @@ username = "postgres"
 password = "root"
 hostname = "localhost"
 port = "5432"
-db_name = "testing_demo"
+db_name = "wednesday"
 
 DB_URL = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{db_name}"
 

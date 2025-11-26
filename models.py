@@ -7,7 +7,7 @@ class Marks(Base):
     # defining the table name
     __tablename__ = "marks"
 
-    student_id = Column(String, primary_key=True)
+    student_id = Column(Integer, primary_key=True)
     student_name = Column(String)
     ps = Column(Integer)
     english = Column(Integer)
