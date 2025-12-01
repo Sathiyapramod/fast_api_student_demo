@@ -5,15 +5,15 @@ username = "postgres"
 password = "root"
 hostname = "localhost"
 port = "5432"
-db_name = "wednesday"
+db_name = "fast_api"
 
 DB_URL = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{db_name}"
 
-# dialling operation
+# engine creation
 engine = create_engine(DB_URL)
 
-# binding the engine to a session
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# SessionLocal
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
-# this needs to be imported inside models.py
+# Base
 Base = declarative_base()
