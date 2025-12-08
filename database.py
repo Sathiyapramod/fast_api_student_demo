@@ -1,11 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-
-username = "postgres"
-password = "root"
-hostname = "localhost"
-port = "5432"
-db_name = "wednesday"
+from core.config import username,password,port,hostname,db_name
 
 DB_URL = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{db_name}"
 
