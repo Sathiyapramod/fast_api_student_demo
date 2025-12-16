@@ -1,9 +1,9 @@
 import jwt
-from config import secret_key
+from core.config import ALGORITHM, SECRET_KEY
 
 
-SECRET_KEY = secret_key
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRY_MINUTES = 30
-
-
+def create_access_token(data: dict):
+    data_to_encode = data.copy()
+    data_to_encode.update({"exp": 86400})
+    encoded_token = jwt.encode(data_to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_token

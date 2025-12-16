@@ -8,6 +8,6 @@ def connect_db():
     try:
         print("Connected to DB successfully")
         yield db
-    except:
+    finally:
         db.close()
     # stop

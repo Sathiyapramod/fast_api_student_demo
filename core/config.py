@@ -8,4 +8,8 @@ password = os.getenv("DB_PASSWORD")
 hostname = os.getenv("DB_HOSTNAME")
 port = os.getenv("DB_PORT")
 db_name = os.getenv("DATABASE")
-secret_key = os.getenv("SECRET_KEY")
+
+# JWT configurations
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRY_MINUTES = 30
