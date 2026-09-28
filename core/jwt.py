@@ -1,4 +1,5 @@
 import jwt
+
 from core.config import ALGORITHM, SECRET_KEY
 
 

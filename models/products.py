@@ -1,9 +1,10 @@
-from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from db.database import Base
 
 
-class Products(base):
+class Products(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True)

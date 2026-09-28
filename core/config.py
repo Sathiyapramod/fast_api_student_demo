@@ -1,8 +1,10 @@
-from dotenv import load_dotenv
 import os
+
+from dotenv import load_dotenv
 
 load_dotenv()
 
+database_name = os.getenv("DB_TYPE")
 username = os.getenv("DB_USERNAME")
 password = os.getenv("DB_PASSWORD")
 hostname = os.getenv("DB_HOSTNAME")
